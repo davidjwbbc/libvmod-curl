@@ -29,6 +29,7 @@ struct vmod_curl {
 	long status;
 	long timeout;
 	long connect_timeout;
+	int max_redirects;
 	char flags;
 #define F_SSL_VERIFY_PEER	(1 << 0)
 #define F_SSL_VERIFY_HOST	(1 << 1)
@@ -120,6 +121,7 @@ cm_clear(struct vmod_curl *c)
 
 	c->connect_timeout = -1;
 	c->timeout = -1;
+	c->max_redirects = 0;
 	c->cafile = NULL;
 	c->capath = NULL;
 	c->error = NULL;
@@ -293,6 +295,14 @@ cm_perform(struct vmod_curl *c)
 #endif
 	}
 
+	if (c->max_redirects > 0) {
+		curl_easy_setopt(curl_handle, CURLOPT_MAXREDIRS,
+		    c->max_redirects);
+		curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+	} else {
+		curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 0L);
+	}
+
 	if (c->flags & F_SSL_VERIFY_PEER)
 		curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 1L);
 	else
@@ -425,6 +435,12 @@ void
 vmod_set_connect_timeout(struct sess *sp, int timeout)
 {
 	cm_get(sp)->connect_timeout = timeout;
+}
+
+void
+vmod_set_max_redirects(struct sess *sp, int max_redirs)
+{
+	cm_get(sp)->max_redirects = max_redirs;
 }
 
 void

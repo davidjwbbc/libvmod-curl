@@ -174,6 +174,18 @@ Return value
 Description
         Sets the CURLOPT_CONNECTTIMEOUT_MS option to the value of the first argument.
 
+set_max_redirects
+-----------------
+
+Prototype
+        ::
+
+                set_max_redirects(INT)
+Return value
+        VOID
+Description
+        Sets the maximum number of 3XX redirects that will be followed.
+
 set_ssl_verify_peer
 -------------------
 
